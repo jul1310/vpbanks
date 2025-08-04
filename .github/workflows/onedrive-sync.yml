@@ -28,7 +28,7 @@ jobs:
 
       - name: Sync OneDrive folder to repo
         run: |
-          rclone copy onedrive:/PowerAutomateUploads ./ --update
+          rclone copy onedrive:/GithubUploads ./ --update
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
