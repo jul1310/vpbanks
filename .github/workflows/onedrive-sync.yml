@@ -1,30 +1,31 @@
-name: Sync OneDrive to Repo
+name: Sync OneDrive PDFs to Repo
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '*/10 * * * *'  # every 10 minutes
+  workflow_dispatch:        # allows manual run
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install rclone
         run: |
           curl https://rclone.org/install.sh | sudo bash
 
-      - name: Configure rclone for OneDrive
+      - name: Configure rclone from secret
         run: |
-          rclone config create onedrive onedrive token '{"access_token":"<your token>"}'
+          mkdir -p ~/.config/rclone
+          echo "${{ secrets.RCLONE_CONF }}" > ~/.config/rclone/rclone.conf
 
-      - name: Sync files from OneDrive to repo
+      - name: Sync OneDrive folder to repo
         run: |
           rclone copy onedrive:/PowerAutomateUploads ./ --update
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
-          git commit -m "Auto upload from Power Automate" || echo "No changes"
+          git commit -m "Auto upload from Power Automate" || echo "No changes to commit"
           git push
