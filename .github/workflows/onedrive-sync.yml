@@ -1,9 +1,9 @@
 name: Sync OneDrive PDFs to Repo
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # every 5 minutes
-  workflow_dispatch:        # allows manual run
+  workflow_dispatch:   # Manual
+  repository_dispatch: # Triggered from Power Automate
+    types: [sync]
 
 permissions:
   contents: write
