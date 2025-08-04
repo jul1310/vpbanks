@@ -1,0 +1,23 @@
+name: Sync Files to Repo
+
+on:
+  workflow_dispatch:   # allows manual trigger
+  schedule:
+    - cron: '*/10 * * * *'  # every 10 minutes
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Create dummy upload
+        run: |
+          echo "Hello from GitHub Action" > hello.txt
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add hello.txt
+          git commit -m "Add file via GitHub Action" || echo "No changes"
+          git push
