@@ -1,8 +1,8 @@
 name: Sync OneDrive PDFs to Repo
 
 on:
-  workflow_dispatch:   # Manual
-  repository_dispatch: # Triggered from Power Automate
+  workflow_dispatch:           # Manual trigger
+  repository_dispatch:         # Triggered from Power Automate
     types: [sync]
 
 permissions:
@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0       # Get full history for proper pull/rebase
 
       - name: Install rclone
         run: |
@@ -28,9 +30,21 @@ jobs:
 
       - name: Sync OneDrive folder to repo
         run: |
+          # Sync files from OneDrive
           rclone copy onedrive:/GithubUploads ./ --update
+
+          # Configure Git
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add .
+
+          # Add only new/changed files
+          git add -A
+
+          # Commit only if changes exist
           git commit -m "Auto upload from Power Automate" || echo "No changes to commit"
-          git push
+
+          # Pull latest remote commits to avoid push rejection
+          git pull --rebase origin main
+
+          # Push changes
+          git push origin main
